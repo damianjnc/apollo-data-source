@@ -1,6 +1,6 @@
-import { ApolloServer, gql, IResolverObject } from "apollo-server";
-import fetch from "node-fetch";
-import { RandomUserDataSource } from "./RandomUserDataSource";
+import { ApolloServer, gql, IResolverObject } from 'apollo-server'
+import fetch from 'node-fetch'
+import { RandomUserDataSource } from './RandomUserDataSource'
 
 const typeDefs = gql`
   type Person {
@@ -13,20 +13,22 @@ const typeDefs = gql`
     randomPerson: [Person!]!
     randomPerson2: [Person!]!
   }
-`;
+`
 
-const resolvers: IResolverObject = {
+const resolvers: IResolverObject | any = {
   Query: {
+    // standard way of doing it
     randomPerson: async () => {
-      const response = await fetch("https://api.randomuser.me/");
-      const data = await response.json();
-      return data.results;
+      const response = await fetch('https://api.randomuser.me/')
+      const data = await response.json()
+      return data.results
     },
-    randomPerson2: (_, __, { dataSources }) => {
-      return dataSources.randomUserAPI.getPerson();
+    // using datasources to achive better architecture and caching 
+    randomPerson2: (_: any, __: any, { dataSources }: any) => {
+      return dataSources.randomUserAPI.getPerson()
     }
   }
-};
+}
 
 const server = new ApolloServer({
   typeDefs,
@@ -34,8 +36,8 @@ const server = new ApolloServer({
   dataSources: () => ({
     randomUserAPI: new RandomUserDataSource()
   })
-});
+})
 
 server.listen().then(({ url }) => {
-  console.log(`🚀  Server ready at ${url}`);
-});
+  console.log(`🚀  Server ready at ${url}`)
+})
